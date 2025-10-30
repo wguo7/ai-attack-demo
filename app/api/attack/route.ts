@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
     result.metrics = {
       ...result.metrics,
       similarityScore: realMetrics.similarityScore,
-      humanReadability: realMetrics.readabilityScore,
       changeDensity: realMetrics.changeDensity,
     };
     result.detectionDifficulty = realMetrics.detectionDifficulty.category;
