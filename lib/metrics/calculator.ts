@@ -18,21 +18,19 @@ let fleschLib: FleschLib | null = null;
 let levenshteinLib: LevenshteinLib | null = null;
 
 // Try to load libraries using dynamic imports
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 function loadStringSimilarity() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const module = require('string-similarity');
-    stringSimilarityLib = module as StringSimilarityLib;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
+    const similarityModule = require('string-similarity');
+    stringSimilarityLib = similarityModule as StringSimilarityLib;
   } catch {
     // Library not available, will use fallback
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 function loadFlesch() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
     const fleschModule = require('flesch');
     // flesch library exports a named export 'flesch', check for both default and named
     const fleschExport = (fleschModule as { flesch?: FleschLib; default?: FleschLib }).flesch 
@@ -46,12 +44,11 @@ function loadFlesch() {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 function loadLevenshtein() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const module = require('levenshtein-edit-distance');
-    levenshteinLib = module as LevenshteinLib;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
+    const levenshteinModule = require('levenshtein-edit-distance');
+    levenshteinLib = levenshteinModule as LevenshteinLib;
   } catch {
     // Library not available, will use fallback
   }

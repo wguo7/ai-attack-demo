@@ -1,10 +1,26 @@
 // EXTREME Semantic Attack - SUPER AGGRESSIVE
 import { AttackConfig, AttackResult } from './config';
 
-let nlp: any = null;
+// Type definition for compromise library
+type CompromiseDoc = {
+  match: (pattern: string) => {
+    forEach: (callback: (match: CompromiseMatch) => void) => void;
+  };
+  text: () => string;
+};
+
+type CompromiseMatch = {
+  text: () => string;
+  replaceWith: (text: string) => void;
+};
+
+type CompromiseNLP = (text: string) => CompromiseDoc;
+
+let nlp: CompromiseNLP | null = null;
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   nlp = require('compromise');
-} catch (e) {
+} catch {
   // Library not available
 }
 
@@ -100,7 +116,7 @@ export class SemanticAdvancedAttack {
     if (nlp && config.intensity === 'evasion') {
       try {
         const doc = nlp(result);
-        doc.match('#Adjective').forEach((match: any) => {
+        doc.match('#Adjective').forEach((match: CompromiseMatch) => {
           if (Math.random() < threshold * 0.3) {
             const synonym = this.getSynonym(match.text());
             if (synonym) {
@@ -113,7 +129,7 @@ export class SemanticAdvancedAttack {
           }
         });
         result = doc.text();
-      } catch (e) {
+      } catch {
         // Continue without NLP
       }
     }

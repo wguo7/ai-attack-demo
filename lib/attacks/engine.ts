@@ -235,7 +235,7 @@ export class AttackEngine {
   }
 
   private static getExplanation(attackType: string, changes: number, intensity: string) {
-    const explanations: { [key: string]: any } = {
+    const explanations: { [key: string]: AttackResult['explanation'] } = {
       homoglyphs: {
         description: 'Uses Unicode TR39 confusables database to replace characters with visually identical glyphs from different scripts (Latin → Cyrillic, Greek, Mathematical). Bypasses visual text filters and mitigates AI character-level detection.',
         detectionTips: [

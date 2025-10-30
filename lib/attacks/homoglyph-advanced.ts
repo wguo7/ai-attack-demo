@@ -1,11 +1,18 @@
 // SUPER STRONG HOMOGLYPH ATTACK using homoglyph library - EXTREME VERSION
 import { AttackConfig, AttackResult } from './config';
 
-let homoglyphLib: any = null;
+// Type definition for homoglyph library
+type HomoglyphLib = {
+  homoglyphs?: Record<string, string[]>;
+  get?: (char: string) => string[] | undefined;
+} | Record<string, string[]>;
+
+let homoglyphLib: HomoglyphLib | null = null;
 
 try {
-  homoglyphLib = require('homoglyph');
-} catch (e) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  homoglyphLib = require('homoglyph') as HomoglyphLib;
+} catch {
   // Library will be loaded at runtime
 }
 
@@ -56,8 +63,9 @@ export class HomoglyphAdvancedAttack {
     // Load library if not already loaded
     if (!homoglyphLib) {
       try {
-        homoglyphLib = require('homoglyph');
-      } catch (e) {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        homoglyphLib = require('homoglyph') as HomoglyphLib;
+      } catch {
         return this.fallbackAttack(text, config, startTime);
       }
     }
@@ -66,7 +74,7 @@ export class HomoglyphAdvancedAttack {
     let result = text;
 
     try {
-      let homoglyphs: any = {};
+      let homoglyphs: Record<string, string[]> = {};
       
       // Try to use the homoglyph library
       if (typeof homoglyphLib === 'object' && homoglyphLib !== null) {
@@ -157,7 +165,7 @@ export class HomoglyphAdvancedAttack {
     };
   }
 
-  private static hasMapping(obj: any): boolean {
+  private static hasMapping(obj: unknown): boolean {
     if (!obj || typeof obj !== 'object') return false;
     const keys = Object.keys(obj);
     return keys.length > 0 && keys.some(key => /[a-zA-Z]/.test(key));

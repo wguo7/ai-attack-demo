@@ -1,10 +1,17 @@
 // Advanced Homoglyph Attack using confusables library
 // Libraries are loaded dynamically to handle missing dependencies gracefully
-let confusables: any = null;
+
+// Type definition for confusables library
+type ConfusablesLib = {
+  get: (char: string) => string[] | undefined;
+};
+
+let confusables: ConfusablesLib | null = null;
 
 try {
-  confusables = require('confusables');
-} catch (e) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  confusables = require('confusables') as ConfusablesLib;
+} catch {
   // Library not available, will use fallback
 }
 
@@ -28,7 +35,7 @@ export class HomoglyphAttack {
     // Method 1: Use confusables library for official Unicode TR39 confusables
     try {
       if (confusables && confusables.get) {
-        result = result.split('').map((char, index) => {
+        result = result.split('').map((char) => {
           if (Math.random() < threshold && /[a-zA-Z0-9]/.test(char)) {
             const confusable = confusables.get(char);
             if (confusable && confusable.length > 0) {
@@ -51,14 +58,14 @@ export class HomoglyphAttack {
           return char;
         }).join('');
       }
-    } catch (e) {
+    } catch {
       // Fallback if confusables library fails
     }
 
     // Method 2: Zero-width joiner for complex glyph combinations
     if (intensity === 'high' || intensity === 'evasion') {
       const words = result.split(/(\s+)/);
-      result = words.map((word, index) => {
+      result = words.map((word) => {
         if (word.trim().length > 3 && Math.random() < 0.1) {
           // Insert zero-width joiner in the middle
           const mid = Math.floor(word.length / 2);

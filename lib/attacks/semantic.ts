@@ -1,10 +1,36 @@
 // Semantic Attacks using natural and compromise
 // Libraries are loaded dynamically to handle missing dependencies gracefully
-let nlp: any = null;
+
+// Type definition for compromise library
+type CompromiseDoc = {
+  match: (pattern: string) => {
+    forEach: (callback: (match: CompromiseMatch) => void) => void;
+  };
+  sentences: () => {
+    forEach: (callback: (sent: CompromiseSentence) => void) => void;
+  };
+  contract: () => void;
+  text: () => string;
+};
+
+type CompromiseMatch = {
+  text: () => string;
+  replaceWith: (text: string) => void;
+};
+
+type CompromiseSentence = {
+  text: () => string;
+  replaceWith: (text: string) => void;
+};
+
+type CompromiseNLP = (text: string) => CompromiseDoc;
+
+let nlp: CompromiseNLP | null = null;
 
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   nlp = require('compromise');
-} catch (e) {
+} catch {
   // Library not available, will use fallback
 }
 
@@ -32,7 +58,7 @@ export class SemanticAttack {
       
       // Replace adjectives with synonyms
       if (intensity !== 'low') {
-        doc.match('#Adjective').forEach((match: any) => {
+        doc.match('#Adjective').forEach((match: CompromiseMatch) => {
           if (Math.random() < threshold) {
             const synonym = this.getSynonym(match.text());
             if (synonym && synonym !== match.text()) {
@@ -48,7 +74,7 @@ export class SemanticAttack {
 
       // Sentence structure paraphrasing
       if (intensity === 'high' || intensity === 'evasion') {
-        doc.sentences().forEach((sent: any) => {
+        doc.sentences().forEach((sent: CompromiseSentence) => {
           if (Math.random() < threshold * 0.5) {
             const paraphrased = this.paraphraseSentence(sent.text());
             if (paraphrased && paraphrased !== sent.text()) {
@@ -72,7 +98,7 @@ export class SemanticAttack {
       }
 
       result = doc.text();
-    } catch (e) {
+    } catch {
       // Fallback if NLP fails
       result = text;
     }
