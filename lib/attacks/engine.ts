@@ -1,5 +1,5 @@
 // Production-Grade Adversarial Attack Engine
-import { AttackResult, AttackDefinition, AttackIntensity } from './types';
+import { AttackDefinition, AttackIntensity, AttackResult } from './types';
 import { HomoglyphAttack } from './homoglyph';
 import { InvisibleCharacterAttack } from './invisible';
 import { TypoAttack } from './typo';
