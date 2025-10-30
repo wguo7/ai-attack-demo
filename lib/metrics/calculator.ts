@@ -8,13 +8,10 @@ type StringSimilarityLib = {
   compareTwoStrings: (str1: string, str2: string) => number;
 };
 
-type FleschLib = (counts: { sentence: number; word: number; syllable: number }) => number;
-
 type LevenshteinLib = (str1: string, str2: string) => number;
 
 // Dynamic imports with fallbacks
 let stringSimilarityLib: StringSimilarityLib | null = null;
-let fleschLib: FleschLib | null = null;
 let levenshteinLib: LevenshteinLib | null = null;
 
 // Try to load libraries using dynamic imports
@@ -23,22 +20,6 @@ function loadStringSimilarity() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
     const similarityModule = require('string-similarity');
     stringSimilarityLib = similarityModule as StringSimilarityLib;
-  } catch {
-    // Library not available, will use fallback
-  }
-}
-
-function loadFlesch() {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
-    const fleschModule = require('flesch');
-    // flesch library exports a named export 'flesch', check for both default and named
-    const fleschExport = (fleschModule as { flesch?: FleschLib; default?: FleschLib }).flesch 
-      || (fleschModule as { default?: FleschLib }).default 
-      || fleschModule as unknown as FleschLib;
-    if (typeof fleschExport === 'function') {
-      fleschLib = fleschExport;
-    }
   } catch {
     // Library not available, will use fallback
   }
@@ -56,7 +37,6 @@ function loadLevenshtein() {
 
 // Load libraries (called at module load time)
 loadStringSimilarity();
-loadFlesch();
 loadLevenshtein();
 
 /**

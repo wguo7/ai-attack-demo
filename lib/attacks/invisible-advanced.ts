@@ -67,7 +67,7 @@ export class InvisibleCharacterAdvancedAttack {
     // 2. Bidirectional override - SUPER AGGRESSIVE
     if (config.intensity === 'high' || config.intensity === 'evasion') {
       const words = result.split(/(\s+)/);
-      result = words.map((word, index) => {
+      result = words.map((word) => {
         if (word.trim().length > 2 && Math.random() < threshold * 0.5) {
           changes++;
           if (!techniquesUsed.includes('Bidirectional Override')) {
@@ -101,7 +101,7 @@ export class InvisibleCharacterAdvancedAttack {
     if (config.intensity === 'evasion') {
       const breakingSequences = ['\u200B\u200C', '\u200C\u200D', '\uFEFF\u200B'];
       const words = result.split(' ');
-      result = words.map((word, index) => {
+      result = words.map((word) => {
         if (word.length > 3 && Math.random() < 0.3) {
           changes++;
           if (!techniquesUsed.includes('Normalization Breaking')) {

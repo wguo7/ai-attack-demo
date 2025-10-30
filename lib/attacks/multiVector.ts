@@ -2,8 +2,8 @@
 import { AttackConfig, AttackResult } from './config';
 import { HomoglyphAdvancedAttack } from './homoglyph-advanced';
 import { InvisibleCharacterAdvancedAttack } from './invisible-advanced';
-import { TypoAdvancedAttack } from './typo-advanced';
 import { SemanticAdvancedAttack } from './semantic-advanced';
+import { TypoAdvancedAttack } from './typo-advanced';
 
 export class MultiVectorAttack {
   static async execute(text: string, config: AttackConfig): Promise<AttackResult> {

@@ -168,7 +168,7 @@ export class SemanticAdvancedAttack {
     return Math.min(100, Math.round(changeRate * 100));
   }
 
-  private static calculateReadability(text: string): number {
+  private static calculateReadability(_text: string): number {
     // Semantic changes maintain high readability
     return 95;
   }

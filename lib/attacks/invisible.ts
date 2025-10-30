@@ -37,7 +37,7 @@ export class InvisibleCharacterAttack {
 
     // Zero-width space insertion
     if (intensity !== 'low') {
-      result = result.split('').map((char, index) => {
+      result = result.split('').map((char) => {
         if ((char === ' ' || /\ W/.test(char)) && Math.random() < threshold * 0.5) {
           changes++;
           if (!techniques.includes('Zero-Width Spaces')) {
@@ -59,7 +59,7 @@ export class InvisibleCharacterAttack {
     // Bidirectional override (high intensity only)
     if (intensity === 'high' || intensity === 'evasion') {
       const words = result.split(/(\s+)/);
-      result = words.map((word, index) => {
+      result = words.map((word) => {
         if (word.trim().length > 2 && Math.random() < threshold * 0.2) {
           changes++;
           if (!techniques.includes('Bidirectional Override')) {
@@ -91,7 +91,7 @@ export class InvisibleCharacterAttack {
       // Add sequences that break normalization
       const breakingSequences = ['\u200B\u200C', '\u200C\u200D democratic', '\uFEFF\u200B'];
       const words = result.split(' ');
-      result = words.map((word, index) => {
+      result = words.map((word) => {
         if (word.length > 4 && Math.random() < 0.05) {
           changes++;
           if (!techniques.includes('Normalization Breaking')) {
