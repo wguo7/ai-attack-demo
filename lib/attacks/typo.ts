@@ -1,5 +1,4 @@
 // Advanced Typo Attack using typo-js and keyboard distance algorithms
-import Typo from 'typo-js';
 
 export class TypoAttack {
   private static keyboardLayouts = {
@@ -28,7 +27,7 @@ export class TypoAttack {
     const threshold = intensityMap[intensity] || 0.2;
 
     // Keyboard distance-based substitutions
-    result = result.split('').map((char, index) => {
+    result = result.split('').map((char) => {
       if (Math.random() < threshold && /[a-z]/.test(char.toLowerCase())) {
         const typo = this.getKeyboardTypo(char);
         if (typo && typo !== char) {

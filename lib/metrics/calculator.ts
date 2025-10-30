@@ -3,34 +3,64 @@
  * Provides fallbacks if libraries are not available
  */
 
+// Type definitions for optional libraries
+type StringSimilarityLib = {
+  compareTwoStrings: (str1: string, str2: string) => number;
+};
+
+type FleschLib = (counts: { sentence: number; word: number; syllable: number }) => number;
+
+type LevenshteinLib = (str1: string, str2: string) => number;
+
 // Dynamic imports with fallbacks
-let stringSimilarityLib: any = null;
-let fleschLib: any = null;
-let levenshteinLib: any = null;
+let stringSimilarityLib: StringSimilarityLib | null = null;
+let fleschLib: FleschLib | null = null;
+let levenshteinLib: LevenshteinLib | null = null;
 
-// Try to load libraries
-try {
-  stringSimilarityLib = require('string-similarity');
-} catch (e) {
-  console.warn('string-similarity not available, using fallback');
-}
-
-try {
-  const fleschModule = require('flesch');
-  // flesch library exports a named export 'flesch', check for both default and named
-  fleschLib = fleschModule.flesch || fleschModule.default || fleschModule;
-  if (typeof fleschLib !== 'function') {
-    fleschLib = null;
+// Try to load libraries using dynamic imports
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+function loadStringSimilarity() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const module = require('string-similarity');
+    stringSimilarityLib = module as StringSimilarityLib;
+  } catch {
+    // Library not available, will use fallback
   }
-} catch (e) {
-  console.warn('flesch not available, using fallback');
 }
 
-try {
-  levenshteinLib = require('levenshtein-edit-distance');
-} catch (e) {
-  console.warn('levenshtein-edit-distance not available, using fallback');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+function loadFlesch() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fleschModule = require('flesch');
+    // flesch library exports a named export 'flesch', check for both default and named
+    const fleschExport = (fleschModule as { flesch?: FleschLib; default?: FleschLib }).flesch 
+      || (fleschModule as { default?: FleschLib }).default 
+      || fleschModule as unknown as FleschLib;
+    if (typeof fleschExport === 'function') {
+      fleschLib = fleschExport;
+    }
+  } catch {
+    // Library not available, will use fallback
+  }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+function loadLevenshtein() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const module = require('levenshtein-edit-distance');
+    levenshteinLib = module as LevenshteinLib;
+  } catch {
+    // Library not available, will use fallback
+  }
+}
+
+// Load libraries (called at module load time)
+loadStringSimilarity();
+loadFlesch();
+loadLevenshtein();
 
 /**
  * Calculate similarity score (0-100%) between two strings
@@ -48,8 +78,8 @@ export function calculateSimilarityScore(
       const similarity = stringSimilarityLib.compareTwoStrings(original, attacked);
       return Math.round(similarity * 100);
     }
-  } catch (e) {
-    console.warn('Error calculating similarity with library:', e);
+  } catch {
+    console.warn('Error calculating similarity with library');
   }
 
   // Fallback: simple character-based comparison
@@ -79,8 +109,8 @@ export function calculateLevenshteinDistance(
     if (levenshteinLib && typeof levenshteinLib === 'function') {
       return levenshteinLib(original, attacked);
     }
-  } catch (e) {
-    console.warn('Error calculating Levenshtein distance with library:', e);
+  } catch {
+    console.warn('Error calculating Levenshtein distance with library');
   }
 
   // Fallback: Dynamic programming implementation
