@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AttackEngineV2 } from '@/lib/attacks/engine-v2';
 import type { AttackConfig } from '@/lib/attacks/config';
+import { AttackEngineV2 } from '@/lib/attacks/engine-v2';
 import { calculateAllMetrics } from '@/lib/metrics/calculator';
+
+interface AttackRequestBody {
+  text: string;
+  attackType: string;
+  intensity?: 'low' | 'medium' | 'high' | 'evasion';
+  techniques?: string[];
+  preserveReadability?: boolean;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json() as AttackRequestBody;
     const { text, attackType, intensity = 'medium', techniques = [], preserveReadability = true } = body;
 
     if (!text || typeof text !== 'string') {
@@ -37,15 +45,18 @@ export async function POST(request: NextRequest) {
     // Calculate REAL metrics using actual libraries
     const realMetrics = calculateAllMetrics(text, result.result);
 
-    // Update result with real calculated metrics
-    result.metrics = {
-      ...result.metrics,
-      similarityScore: realMetrics.similarityScore,
-      changeDensity: realMetrics.changeDensity,
+    // Create updated result with real calculated metrics
+    const updatedResult = {
+      ...result,
+      metrics: {
+        ...result.metrics,
+        similarityScore: realMetrics.similarityScore,
+        changeDensity: realMetrics.changeDensity,
+      },
+      detectionDifficulty: realMetrics.detectionDifficulty.category,
     };
-    result.detectionDifficulty = realMetrics.detectionDifficulty.category;
 
-    return NextResponse.json(result);
+    return NextResponse.json(updatedResult);
   } catch (error) {
     console.error('Error executing attack:', error);
     return NextResponse.json(

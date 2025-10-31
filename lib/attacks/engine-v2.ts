@@ -1,10 +1,10 @@
 // Production-Grade Configuration-Driven Attack Engine
+import { ComprehensiveAttackEngine } from './comprehensive';
 import { AttackConfig, AttackResult, DEFAULT_CONFIG } from './config';
 import { HomoglyphAdvancedAttack } from './homoglyph-advanced';
 import { InvisibleCharacterAdvancedAttack } from './invisible-advanced';
-import { TypoAdvancedAttack } from './typo-advanced';
 import { SemanticAdvancedAttack } from './semantic-advanced';
-import { ComprehensiveAttackEngine } from './comprehensive';
+import { TypoAdvancedAttack } from './typo-advanced';
 
 export class AttackEngineV2 {
   static async executeAttack(

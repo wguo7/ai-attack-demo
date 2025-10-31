@@ -1,10 +1,10 @@
 // Production-Grade Adversarial Attack Engine
-import { AttackDefinition, AttackIntensity, AttackResult } from './types';
 import { HomoglyphAttack } from './homoglyph';
 import { InvisibleCharacterAttack } from './invisible';
-import { TypoAttack } from './typo';
-import { SemanticAttack } from './semantic';
 import { MultiVectorAttack } from './multiVector';
+import { SemanticAttack } from './semantic';
+import { AttackDefinition, AttackIntensity, AttackResult } from './types';
+import { TypoAttack } from './typo';
 
 export * from './types';
 
@@ -118,14 +118,15 @@ export class AttackEngine {
         break;
 
       case 'multi-vector':
-        const multiVectorResult = MultiVectorAttack.execute(text, intensity);
-        result = multiVectorResult.result;
-        changes = multiVectorResult.changes;
-        techniques = multiVectorResult.techniques;
-        break;
-
-      default:
-        result = text;
+  const multiVectorResult = await MultiVectorAttack.execute(text, {
+    intensity,
+    techniques: [],
+    preserveReadability: true
+  });
+  result = multiVectorResult.result;
+  changes = multiVectorResult.metrics.changesMade;
+  techniques = multiVectorResult.techniquesUsed;
+  break;
     }
 
     const processingTime = performance.now() - startTime;
@@ -234,7 +235,7 @@ export class AttackEngine {
     return 'low';
   }
 
-  private static getExplanation(attackType: string, changes: number, intensity: string) {
+  private static getExplanation(attackType: string, _changes: number, _intensity: string) {
     const explanations: { [key: string]: AttackResult['explanation'] } = {
       homoglyphs: {
         description: 'Uses Unicode TR39 confusables database to replace characters with visually identical glyphs from different scripts (Latin → Cyrillic, Greek, Mathematical). Bypasses visual text filters and mitigates AI character-level detection.',

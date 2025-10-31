@@ -77,20 +77,24 @@ export class SemanticAdvancedAttack {
     // 1. Synonym replacement - AGGRESSIVE
     const words = result.split(/(\s+)/);
     result = words.map(word => {
-      if (config.maxModifications && changes >= config.maxModifications) {
-        return word;
+  if (config.maxModifications && changes >= config.maxModifications) {
+    return word;
+  }
+  const cleanWord = word.toLowerCase().trim().replace(/[.,!?;:]/g, '');
+  if (synonymMap[cleanWord] && Math.random() < threshold) {
+    const synonyms = synonymMap[cleanWord];
+    const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+    if (synonym) {  // Add this check
+      changes++;
+      if (!techniquesUsed.includes('Synonym Replacement')) {
+        techniquesUsed.push('Synonym Replacement');
       }
-      const cleanWord = word.toLowerCase().trim().replace(/[.,!?;:]/g, '');
-      if (synonymMap[cleanWord] && Math.random() < threshold) {
-        changes++;
-        if (!techniquesUsed.includes('Synonym Replacement')) {
-          techniquesUsed.push('Synonym Replacement');
-        }
-        const synonym = synonymMap[cleanWord][Math.floor(Math.random() * synonymMap[cleanWord].length)];
-        return word.replace(cleanWord, synonym);
-      }
-      return word;
-    }).join('');
+      return word.replace(cleanWord, synonym);
+    }
+  }
+  return word;
+}).join('');
+
 
     // 2. Sentence paraphrasing
     if (config.intensity === 'high' || config.intensity === 'evasion') {
@@ -151,16 +155,16 @@ export class SemanticAdvancedAttack {
   }
 
   private static getSynonym(word: string): string | null {
-    const synonymMap: { [key: string]: string[] } = {
-      'good': ['great', 'excellent'], 'bad': ['poor', 'terrible'],
-      'big': ['large', 'huge'], 'small': ['tiny', 'little']
-    };
-    const lower = word.toLowerCase().trim();
-    if (synonymMap[lower]) {
-      return synonymMap[lower][Math.floor(Math.random() * synonymMap[lower].length)];
-    }
-    return null;
+  const synonymMap: { [key: string]: string[] } = {
+    'good': ['great', 'excellent'], 'bad': ['poor', 'terrible'],
+    'big': ['large', 'huge'], 'small': ['tiny', 'little']
+  };
+  const lower = word.toLowerCase().trim();
+  if (synonymMap[lower]) {
+    return synonymMap[lower][Math.floor(Math.random() * synonymMap[lower].length)] ?? null;
   }
+  return null;
+}
 
   private static calculateEvasionScore(changes: number, originalLength: number): number {
     if (originalLength === 0) return 0;

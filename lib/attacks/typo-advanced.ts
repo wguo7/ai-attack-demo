@@ -51,7 +51,7 @@ export class TypoAdvancedAttack {
       'correct': 'corect', 'comprehensible': 'comprehesible', 'anymore': 'anyomore',
       'while': 'whiel', 'still': 'stil', 'resembles': 'resmbles', 'classical': 'clasical',
       'actually': 'actuallly', 'meaning': 'meanign', 'whatsoever': 'whatsover',
-      'contain': 'contian', 'letters': 'leters', 'inserted': 'insrted', 'randomly': 'randmly',
+      'contain': 'contian', 'inserted': 'insrted', 'randomly': 'randmly',
       'mimic': 'mimik', 'typographic': 'typograhpic', 'appearance': 'appearnce',
       'languages': 'langauges', 'found': 'foud', 'original': 'origianl'
     };
@@ -96,7 +96,7 @@ export class TypoAdvancedAttack {
           if (!techniquesUsed.includes('Keyboard Distance')) {
             techniquesUsed.push('Keyboard Distance');
           }
-          const replacement = keyboardMap[lower][Math.floor(Math.random() * keyboardMap[lower].length)];
+          const replacement = keyboardMap[lower][Math.floor(Math.random() * keyboardMap[lower].length)] || lower;
           return this.preserveCase(char, replacement);
         }
         return char;
@@ -142,7 +142,7 @@ export class TypoAdvancedAttack {
     if (original === original.toUpperCase()) {
       return replacement.toUpperCase();
     }
-    if (original[0] === original[0].toUpperCase()) {
+    if (original[0]?.toUpperCase() === original[0]) {
       return replacement.charAt(0).toUpperCase() + replacement.slice(1);
     }
     return replacement;

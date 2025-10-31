@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { Check, Copy, Diff, Eye, EyeOff, Search } from 'lucide-react';
 import * as React from 'react';
-import { Copy, Check, Eye, EyeOff, Search, Diff } from 'lucide-react';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 
 interface TextPanelProps {
   title: string;
@@ -208,6 +208,8 @@ function renderUnusualUnicode(text: string): React.ReactNode[] {
   
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
+    if (!char) continue; // Skip if undefined (shouldn't happen, but satisfies TypeScript)
+    
     const code = char.charCodeAt(0);
     const hexCode = code.toString(16).toUpperCase().padStart(4, '0');
     const info = getUnicodeInfo(char);

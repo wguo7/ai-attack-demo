@@ -8,7 +8,7 @@ export default function DocumentationPage() {
           <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-6 mb-8">
             <h2 className="text-xl font-semibold text-red-400 mb-3">⚠️ Important Warning</h2>
             <p className="text-slate-300">
-              This tool demonstrates adversarial attacks for educational and defensive purposes only. 
+              This tool is for educational and research purposes only. By using this tool, you agree to use it ethically and legally. 
               Do not use these techniques for malicious activities.
             </p>
           </div>
@@ -89,32 +89,7 @@ export default function DocumentationPage() {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-2xl font-semibold text-slate-200 mb-3">Metrics Explained</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <strong className="text-emerald-400">Evasion Score (0-100):</strong> Likelihood that the attack will bypass detection systems. Higher = more effective.
-                </div>
-                <div>
-                  <strong className="text-blue-400">Human Readability (0-100):</strong> How readable the attacked text remains to humans. Higher = more readable.
-                </div>
-                <div>
-                  <strong className="text-amber-400">Detection Difficulty:</strong> Estimated difficulty for detection systems (low/medium/high/extreme).
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-2xl font-semibold text-slate-200 mb-3">Defense Recommendations</h3>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Use Unicode normalization (NFC/NFD) before text processing</li>
-                <li>Implement script detection to identify mixed-script usage</li>
-                <li>Strip zero-width and bidirectional characters</li>
-                <li>Use semantic embeddings instead of keyword matching</li>
-                <li>Implement fuzzy string matching for typo detection</li>
-                <li>Validate character sets against expected scripts</li>
-              </ul>
-            </div>
+            
           </div>
         </div>
       </div>

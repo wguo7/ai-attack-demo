@@ -1,16 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { attackDefinitions, AttackEngine, type AttackDefinition } from '@/lib/attacks/engine';
-import { AlertTriangle, Shield, Info, Code2 } from 'lucide-react';
+import { Code2, Info, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { attackDefinitions, AttackEngine } from '@/lib/attacks/engine';
 
+// Remove unused imports and types
 interface ExplanationPanelProps {
   attackType: string;
 }
 
-const riskLevelConfig = {
+interface AttackExplanation {
+  description: string;
+  detectionTips: string[];
+  examples: string[];
+}
+
+const riskLevelConfig: Record<string, {
+  color: string;
+  bg: string;
+  border: string;
+  label: string;
+}> = {
   low: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', label: 'Low Risk' },
   medium: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', label: 'Medium Risk' },
   high: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'High Risk' },
@@ -19,7 +31,7 @@ const riskLevelConfig = {
 
 export default function ExplanationPanel({ attackType }: ExplanationPanelProps) {
   const attack = attackDefinitions.find(a => a.id === attackType);
-  const [explanation, setExplanation] = useState<any>(null);
+  const [explanation, setExplanation] = useState<AttackExplanation | null>(null);
 
   useEffect(() => {
     if (attackType && attack) {
@@ -41,7 +53,7 @@ export default function ExplanationPanel({ attackType }: ExplanationPanelProps) 
     );
   }
 
-  const riskConfig = riskLevelConfig[attack.riskLevel];
+ const riskConfig = (riskLevelConfig[attack.riskLevel] ?? riskLevelConfig.medium)!;
   
   if (!explanation) {
     return (
@@ -128,7 +140,7 @@ export default function ExplanationPanel({ attackType }: ExplanationPanelProps) 
                       {/* Show hex representation for invisible chars */}
                       {example.includes('zero-width') || example.includes('bidirectional') ? (
                         <div className="mt-2 text-xs text-slate-500 font-mono">
-                          Hex: {Array.from(example.split('→')[1]?.trim() || '').map((c, i) => {
+                          Hex: {Array.from(example.split('→')[1]?.trim() || '').map((c, _i) => {
                             const code = c.charCodeAt(0);
                             return code < 32 || code > 126 ? `[${code.toString(16).toUpperCase()}]` : c;
                           }).join('')}

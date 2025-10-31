@@ -17,7 +17,7 @@ let levenshteinLib: LevenshteinLib | null = null;
 // Try to load libraries using dynamic imports
 function loadStringSimilarity() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const similarityModule = require('string-similarity');
     stringSimilarityLib = similarityModule as StringSimilarityLib;
   } catch {
@@ -27,7 +27,7 @@ function loadStringSimilarity() {
 
 function loadLevenshtein() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @next/next/no-assign-module-variable
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const levenshteinModule = require('levenshtein-edit-distance');
     levenshteinLib = levenshteinModule as LevenshteinLib;
   } catch {
@@ -75,6 +75,9 @@ export function calculateSimilarityScore(
 /**
  * Calculate Levenshtein edit distance (absolute number of edits)
  */
+/**
+ * Calculate Levenshtein edit distance (absolute number of edits)
+ */
 export function calculateLevenshteinDistance(
   original: string,
   attacked: string
@@ -82,41 +85,41 @@ export function calculateLevenshteinDistance(
   if (!original || original.length === 0) return attacked ? attacked.length : 0;
   if (!attacked || attacked.length === 0) return original.length;
 
-  try {
-    if (levenshteinLib && typeof levenshteinLib === 'function') {
+  if (levenshteinLib && typeof levenshteinLib === 'function') {
+    try {
       return levenshteinLib(original, attacked);
+    } catch {
+      // Fall through to manual implementation
     }
-  } catch {
-    console.warn('Error calculating Levenshtein distance with library');
   }
 
-  // Fallback: Dynamic programming implementation
+  // Manual Levenshtein distance calculation
   const m = original.length;
   const n = attacked.length;
-  const dp: number[][] = [];
-  
+  const dp: number[][] = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0));
+
   for (let i = 0; i <= m; i++) {
-    dp[i] = [i];
+    dp[i]![0] = i;
   }
   for (let j = 0; j <= n; j++) {
-    dp[0][j] = j;
+    dp[0]![j] = j;
   }
-  
+
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       if (original[i - 1] === attacked[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
+        dp[i]![j] = dp[i - 1]![j - 1]!;
       } else {
-        dp[i][j] = Math.min(
-          dp[i - 1][j] + 1,     // deletion
-          dp[i][j - 1] + 1,     // insertion
-          dp[i - 1][j - 1] + 1  // substitution
+        dp[i]![j] = Math.min(
+          dp[i - 1]![j]! + 1,    // deletion
+          dp[i]![j - 1]! + 1,    // insertion
+          dp[i - 1]![j - 1]! + 1 // substitution
         );
       }
     }
   }
-  
-  return dp[m][n];
+
+  return dp[m]![n]!;
 }
 
 /**

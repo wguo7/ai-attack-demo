@@ -85,27 +85,50 @@ export class TypoAttack {
     return { result, changes, techniques };
   }
 
-  private static getKeyboardTypo(char: string): string | null {
+ private static getKeyboardTypo(char: string): string | null {
     const lower = char.toLowerCase();
     const layout = this.keyboardLayouts.qwerty;
     
     // Find position
     for (let rowIdx = 0; rowIdx < layout.rows.length; rowIdx++) {
-      const row = layout.rows[rowIdx];
+      const row = layout.rows[rowIdx] as string[];
       const colIdx = row.indexOf(lower);
       if (colIdx !== -1) {
         // Try adjacent keys
         const candidates: string[] = [];
-        if (colIdx > 0) candidates.push(row[colIdx - 1]);
-        if (colIdx < row.length - 1) candidates.push(row[colIdx + 1]);
-        if (rowIdx > 0 && layout.rows[rowIdx - 1][colIdx]) {
-          candidates.push(layout.rows[rowIdx - 1][colIdx]);
+        
+        // Left
+        const leftChar = row[colIdx - 1];
+        if (colIdx > 0 && leftChar) {
+          candidates.push(leftChar);
         }
-        if (rowIdx < layout.rows.length - 1 && layout.rows[rowIdx + 1][colIdx]) {
-          candidates.push(layout.rows[rowIdx + 1][colIdx]);
+        
+        // Right
+        const rightChar = row[colIdx + 1];
+        if (colIdx < row.length - 1 && rightChar) {
+          candidates.push(rightChar);
         }
+        
+        // Up
+        if (rowIdx > 0) {
+          const upperRow = layout.rows[rowIdx - 1] as string[];
+          const upChar = upperRow[colIdx];
+          if (colIdx < upperRow.length && upChar) {
+            candidates.push(upChar);
+          }
+        }
+        
+        // Down
+        if (rowIdx < layout.rows.length - 1) {
+          const lowerRow = layout.rows[rowIdx + 1] as string[];
+          const downChar = lowerRow[colIdx];
+          if (colIdx < lowerRow.length && downChar) {
+            candidates.push(downChar);
+          }
+        }
+        
         if (candidates.length > 0) {
-          return candidates[Math.floor(Math.random() * candidates.length)];
+          return candidates[Math.floor(Math.random() * candidates.length)] ?? null;
         }
       }
     }
@@ -133,7 +156,7 @@ export class TypoAttack {
     if (original === original.toUpperCase()) {
       return replacement.toUpperCase();
     }
-    if (original[0] === original[0].toUpperCase()) {
+    if (original[0] && original[0] === original[0].toUpperCase()) {
       return replacement.charAt(0).toUpperCase() + replacement.slice(1);
     }
     return replacement;

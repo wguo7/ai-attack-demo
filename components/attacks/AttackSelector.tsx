@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { attackDefinitions, type AttackDefinition } from '@/lib/attacks/engine';
+import { attackDefinitions } from '@/lib/attacks/engine';
 import { cn } from '@/lib/utils';
+
+// Remove unused AttackDefinition type
 
 interface AttackSelectorProps {
   selectedAttack: string;

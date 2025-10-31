@@ -284,7 +284,7 @@ export class ComprehensiveAttackEngine {
     return { result, changes };
   }
 
-  private static bidirectionalAttack(text: string, config: AttackConfig): { result: string; changes: number } {
+  private static bidirectionalAttack(text: string, _config: AttackConfig): { result: string; changes: number } {
     const bidiChars = ['\u202E', '\u202D', '\u200F'];
     const words = text.split(' ');
     let changes = 0;
@@ -300,39 +300,42 @@ export class ComprehensiveAttackEngine {
     return { result, changes };
   }
 
-  private static synonymReplacement(text: string, config: AttackConfig): { result: string; changes: number } {
-    const synonymMap: { [key: string]: string[] } = {
-      'good': ['great', 'excellent', 'fine', 'superb', 'outstanding', 'wonderful'],
-      'bad': ['poor', 'terrible', 'awful', 'horrible', 'dreadful', 'atrocious'],
-      'big': ['large', 'huge', 'massive', 'enormous', 'gigantic', 'immense'],
-      'small': ['tiny', 'little', 'mini', 'miniature', 'compact', 'petite'],
-      'fast': ['quick', 'rapid', 'swift', 'speedy', 'brisk', 'hurried'],
-      'important': ['significant', 'crucial', 'vital', 'essential', 'key', 'critical'],
-      'happy': ['joyful', 'cheerful', 'pleased', 'delighted', 'content', 'merry'],
-      'sad': ['unhappy', 'melancholy', 'depressed', 'gloomy', 'dejected', 'sorrowful'],
-      'easy': ['simple', 'straightforward', 'effortless', 'uncomplicated', 'basic', 'elementary'],
-      'hard': ['difficult', 'challenging', 'tough', 'complex', 'complicated', 'arduous'],
-      'new': ['fresh', 'recent', 'modern', 'novel', 'current', 'latest'],
-      'old': ['ancient', 'aged', 'elderly', 'vintage', 'antique', 'outdated']
-    };
+  private static synonymReplacement(text: string, _config: AttackConfig): { result: string; changes: number } {
+  const synonymMap: { [key: string]: string[] } = {
+    'good': ['great', 'excellent', 'fine', 'superb', 'outstanding', 'wonderful'],
+    'bad': ['poor', 'terrible', 'awful', 'horrible', 'dreadful', 'atrocious'],
+    'big': ['large', 'huge', 'massive', 'enormous', 'gigantic', 'immense'],
+    'small': ['tiny', 'little', 'mini', 'miniature', 'compact', 'petite'],
+    'fast': ['quick', 'rapid', 'swift', 'speedy', 'brisk', 'hurried'],
+    'important': ['significant', 'crucial', 'vital', 'essential', 'key', 'critical'],
+    'happy': ['joyful', 'cheerful', 'pleased', 'delighted', 'content', 'merry'],
+    'sad': ['unhappy', 'melancholy', 'depressed', 'gloomy', 'dejected', 'sorrowful'],
+    'easy': ['simple', 'straightforward', 'effortless', 'uncomplicated', 'basic', 'elementary'],
+    'hard': ['difficult', 'challenging', 'tough', 'complex', 'complicated', 'arduous'],
+    'new': ['fresh', 'recent', 'modern', 'novel', 'current', 'latest'],
+    'old': ['ancient', 'aged', 'elderly', 'vintage', 'antique', 'outdated']
+  };
 
-    // MUCH MORE AGGRESSIVE - replace most words
-    const rate = config.intensity === 'evasion' ? 0.8 : config.intensity === 'high' ? 0.6 : config.intensity === 'medium' ? 0.4 : 0.2;
-    let changes = 0;
+  // MUCH MORE AGGRESSIVE - replace most words
+  const rate = _config.intensity === 'evasion' ? 0.8 : _config.intensity === 'high' ? 0.6 : _config.intensity === 'medium' ? 0.4 : 0.2;
+  let changes = 0;
 
-    const words = text.split(/(\s+)/);
-    const result = words.map(word => {
-      const cleanWord = word.toLowerCase().trim();
-      if (synonymMap[cleanWord] && Math.random() < rate) {
-        changes++;
-        const synonym = synonymMap[cleanWord][Math.floor(Math.random() * synonymMap[cleanWord].length)];
+  const words = text.split(/(\s+)/);
+  const result = words.map(word => {
+    const cleanWord = word.toLowerCase().trim();
+    const synonyms = synonymMap[cleanWord];
+    if (synonyms && synonyms.length > 0 && Math.random() < rate) {
+      changes++;
+      const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
+      if (synonym) {
         return word.replace(cleanWord, synonym);
       }
-      return word;
-    }).join('');
+    }
+    return word;
+  }).join('');
 
-    return { result, changes };
-  }
+  return { result, changes };
+}
 
   private static typoGeneration(text: string, config: AttackConfig): { result: string; changes: number } {
     const typoMap: { [key: string]: string } = {
@@ -372,7 +375,7 @@ export class ComprehensiveAttackEngine {
     return { result, changes };
   }
 
-  private static caseVariation(text: string, config: AttackConfig): { result: string; changes: number } {
+  private static caseVariation(text: string, _config: AttackConfig): { result: string; changes: number } {
     const rate = 0.2;
     let changes = 0;
 
@@ -388,27 +391,30 @@ export class ComprehensiveAttackEngine {
   }
 
   private static wordOrderRandomization(text: string, config: AttackConfig): { result: string; changes: number } {
-    // More aggressive randomization based on intensity
-    const rate = config.intensity === 'evasion' ? 0.5 : config.intensity === 'high' ? 0.4 : 0.2;
-    const sentences = text.split(/[.!?]+/);
-    let changes = 0;
+  // More aggressive randomization based on intensity
+  const rate = config.intensity === 'evasion' ? 0.5 : config.intensity === 'high' ? 0.4 : 0.2;
+  const sentences = text.split(/[.!?]+/);
+  let changes = 0;
 
-    const result = sentences.map(sentence => {
-      const words = sentence.trim().split(/\s+/);
-      if (words.length > 2 && Math.random() < rate) {
-        // Swap adjacent words more aggressively
-        for (let i = 0; i < words.length - 1; i += 2) {
-          if (Math.random() < rate) {
-            [words[i], words[i + 1]] = [words[i + 1], words[i]];
-            changes++;
-          }
+  const result = sentences.map(sentence => {
+    const words = sentence.trim().split(/\s+/);
+    if (words.length > 2 && Math.random() < rate) {
+      // Swap adjacent words more aggressively
+      for (let i = 0; i < words.length - 1; i += 2) {
+        const word1 = words[i];
+        const word2 = words[i + 1];
+        if (Math.random() < rate && word1 !== undefined && word2 !== undefined) {
+          words[i] = word2;
+          words[i + 1] = word1;
+          changes++;
         }
       }
-      return words.join(' ');
-    }).join('. ');
+    }
+    return words.join(' ');
+  }).join('. ');
 
-    return { result, changes };
-  }
+  return { result, changes };
+}
 
   private static punctuationManipulation(text: string, config: AttackConfig): { result: string; changes: number } {
     const punctMap: { [key: string]: string } = {

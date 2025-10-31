@@ -78,22 +78,17 @@ export class HomoglyphAdvancedAttack {
       
       // Try to use the homoglyph library
       if (typeof homoglyphLib === 'object' && homoglyphLib !== null) {
-        // Check various possible API structures
-        if (homoglyphLib.homoglyphs) {
-          homoglyphs = homoglyphLib.homoglyphs;
-        } else if (typeof homoglyphLib.get === 'function') {
-          // Library might work like a Map
-          homoglyphs = homoglyphLib;
-        } else {
-          // Try to use the entire object as mapping
-          homoglyphs = homoglyphLib;
-        }
-      } else if (typeof homoglyphLib === 'function') {
-        const result = homoglyphLib();
-        if (result && typeof result === 'object') {
-          homoglyphs = result;
-        }
-      }
+  // Check various possible API structures
+  if ('homoglyphs' in homoglyphLib && homoglyphLib.homoglyphs && !Array.isArray(homoglyphLib.homoglyphs)) {
+    homoglyphs = homoglyphLib.homoglyphs;
+  } else if ('get' in homoglyphLib && typeof homoglyphLib.get === 'function') {
+    // Library might work like a Map - cast it
+    homoglyphs = homoglyphLib as unknown as Record<string, string[]>;
+  } else if (!Array.isArray(homoglyphLib)) {
+    // Try to use the entire object as mapping - only if it's not an array
+    homoglyphs = homoglyphLib as Record<string, string[]>;
+  }
+}
 
       // If library didn't work, use fallback
       if (Object.keys(homoglyphs).length === 0 && !this.hasMapping(homoglyphs)) {
@@ -107,23 +102,24 @@ export class HomoglyphAdvancedAttack {
         }
 
         // Try to get replacement from library
-        let replacement: string | null = null;
-        
-        if (typeof homoglyphs.get === 'function') {
-          // Map-like structure
-          const replacements = homoglyphs.get(char);
-          if (replacements && replacements.length > 0) {
-            replacement = replacements[Math.floor(Math.random() * replacements.length)];
-          }
-        } else if (homoglyphs[char]) {
-          // Object/dictionary structure
-          const replacements = Array.isArray(homoglyphs[char]) 
-            ? homoglyphs[char] 
-            : [homoglyphs[char]];
-          if (replacements.length > 0) {
-            replacement = replacements[Math.floor(Math.random() * replacements.length)];
-          }
-        }
+let replacement: string | null = null;
+
+// Check if it has a get method (Map-like)
+if ('get' in homoglyphs && typeof (homoglyphs as unknown as { get: (char: string) => string[] | undefined }).get === 'function') {
+  const obj = homoglyphs as unknown as { get: (char: string) => string[] | undefined };
+  const replacements = obj.get(char);
+  if (replacements && replacements.length > 0) {
+    replacement = replacements[Math.floor(Math.random() * replacements.length)] ?? null;
+  }
+} else if (homoglyphs[char]) {
+  // Object/dictionary structure
+  const replacements = Array.isArray(homoglyphs[char]) 
+    ? homoglyphs[char] 
+    : [homoglyphs[char]];
+  if (replacements.length > 0) {
+    replacement = replacements[Math.floor(Math.random() * replacements.length)] ?? null;
+  }
+}
 
         // Apply replacement if found and random check passes
         if (replacement && replacement !== char && Math.random() < replacementRate) {

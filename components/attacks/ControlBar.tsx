@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Play, RotateCcw, Download } from 'lucide-react';
+import { Download, Play, RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
-import { calculateAllMetrics } from '@/lib/metrics/calculator';
+import { Slider } from '@/components/ui/slider';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { AttackResult } from '@/lib/attacks/types';
+import { calculateAllMetrics } from '@/lib/metrics/calculator';
+
 
 interface ControlBarProps {
   inputText: string;
@@ -25,7 +26,7 @@ function percentageToIntensity(percentage: number): 'low' | 'medium' | 'high' | 
 }
 
 // Helper to convert intensity enum to percentage
-function intensityToPercentage(intensity: 'low' | 'medium' | 'high' | 'evasion'): number {
+function _intensityToPercentage(intensity: 'low' | 'medium' | 'high' | 'evasion'): number {
   switch (intensity) {
     case 'low': return 25;
     case 'medium': return 50;
@@ -72,10 +73,10 @@ export default function ControlBar({
   }, [outputText, inputText]);
 
   const handleIntensityChange = (value: number[]) => {
-    const newIntensity = value[0];
-    setIntensity(newIntensity);
-    setIntensityInput(newIntensity.toString());
-  };
+  const newIntensity = value[0] ?? 50; // Default to 50 if undefined
+  setIntensity(newIntensity);
+  setIntensityInput(newIntensity.toString());
+};
 
   const handleIntensityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -102,43 +103,43 @@ export default function ControlBar({
   };
 
   const handleExecute = async () => {
-    if (!selectedAttack || !inputText.trim()) {
-      alert('Please select an attack type and enter some text.');
-      return;
+  if (!selectedAttack || !inputText.trim()) {
+    alert('Please select an attack type and enter some text.');
+    return;
+  }
+
+  setIsExecuting(true);
+  try {
+    const intensityEnum = percentageToIntensity(intensity);
+    
+    const response = await fetch('/api/attack', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: inputText,
+        attackType: selectedAttack,
+        intensity: intensityEnum,
+        preserveReadability: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json() as { error?: string };
+      throw new Error(error.error || 'Failed to execute attack');
     }
 
-    setIsExecuting(true);
-    try {
-      const intensityEnum = percentageToIntensity(intensity);
-      
-      const response = await fetch('/api/attack', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: inputText,
-          attackType: selectedAttack,
-          intensity: intensityEnum,
-          preserveReadability: false,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to execute attack');
-      }
-
-      const result: AttackResult = await response.json();
-      setLastResult(result);
-      onOutputChange(result.result);
-    } catch (error) {
-      console.error('Error executing attack:', error);
-      alert(error instanceof Error ? error.message : 'Failed to execute attack. Please try again.');
-    } finally {
-      setIsExecuting(false);
-    }
-  };
+    const result = await response.json() as AttackResult;
+    setLastResult(result);
+    onOutputChange(result.result);
+  } catch (error) {
+    console.error('Error executing attack:', error);
+    alert(error instanceof Error ? error.message : 'Failed to execute attack. Please try again.');
+  } finally {
+    setIsExecuting(false);
+  }
+};
 
   const handleReset = () => {
     onOutputChange('');
@@ -186,7 +187,6 @@ export default function ControlBar({
             min={0}
             max={100}
             step={1}
-            className="flex-1 max-w-[400px]"
             className="flex-1"
           />
           <input
